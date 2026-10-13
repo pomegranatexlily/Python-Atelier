@@ -5,7 +5,6 @@
   var state = null;
   var callbacks = [];
   var overlay = null;
-  var manageButton = null;
   var policyURL = new URL("privacy.html", document.currentScript.src).href;
 
   try {
@@ -34,7 +33,6 @@
       // A choice still applies during this visit if storage is disabled.
     }
     close();
-    if (manageButton) manageButton.hidden = false;
     var queued = callbacks.splice(0);
     queued.forEach(function (fn) { fn(); });
     window.dispatchEvent(new CustomEvent("atelier-privacy-change", {
@@ -147,18 +145,17 @@
       ".ap-policy-link{display:inline-block;color:#f7d1db;font:600 14px system-ui,sans-serif;margin:4px 0 0}" +
       ".ap-choice{display:flex;align-items:flex-start;gap:12px;padding:12px 0;font:14px/1.5 system-ui,sans-serif;color:#fff}" +
       ".ap-choice input{width:18px;height:18px;flex:none;margin:3px 0 0;accent-color:#b74969}" +
-      ".ap-manage{position:fixed;left:12px;bottom:12px;z-index:2147480000;border:1px solid #a78c96;background:#241921;color:#fff;border-radius:20px;padding:8px 12px;font:600 12px system-ui,sans-serif;cursor:pointer;box-shadow:0 3px 12px #0006}" +
-      ".ap-manage[hidden]{display:none!important}" +
       "@media(min-width:600px){.ap-backdrop{align-items:center}.ap-panel{padding:28px}}" +
       "@media(max-width:420px){.ap-actions{display:grid;grid-template-columns:1fr 1fr}.ap-outline{grid-column:1/-1}.ap-button{padding:12px 9px}}";
     document.head.append(css);
-    manageButton = document.createElement("button");
-    manageButton.type = "button";
-    manageButton.className = "ap-manage";
-    manageButton.textContent = "Privacy choices";
-    manageButton.hidden = !state;
-    manageButton.addEventListener("click", openPreferences);
-    document.body.append(manageButton);
+    document.addEventListener("click", function (event) {
+      var target = event.target.closest("[data-privacy-settings]");
+      if (!target) return;
+      event.preventDefault();
+      var settingsDialog = document.getElementById("sd");
+      if (settingsDialog && settingsDialog.open) settingsDialog.close();
+      openPreferences();
+    });
     if (!state) openNotice();
   }
   window.AtelierPrivacy = Object.freeze({
