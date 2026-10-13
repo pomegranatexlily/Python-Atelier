@@ -24,7 +24,7 @@
 <meta name="twitter:title" content="Online Python IDE & Interpreter — POMEGRANATE × LILY">
 <meta name="twitter:description" content="A free online Python editor and interpreter with a browser runtime, console and Atelier Coach guidance.">
 <script src="../privacy-consent.js"></script>
-<script src="../coi-serviceworker.js"></script>
+<!-- Essential Python input service worker is loaded after the visitor makes a privacy choice. -->
 <style>
 :root{color-scheme:dark;--bg:#100b0e;--ink:#f3eddf;--mut:#b4a4a7;--gold:#dbb97d;--wine:#922f4a;--leaf:#8db49c;--line:#dbb97d29;--mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--berry:var(--wine);--fs:15px;--vh:100dvh}
 *{box-sizing:border-box}[hidden]{display:none!important}
@@ -235,7 +235,8 @@ body.coding .CodeMirror,body.coding #src{height:100%!important}
  <div class="row"><span>Clear console on each run</span><input type="checkbox" id="clr" aria-label="Clear console on each run"></div>
  <div class="row"><span>Coach suggestions</span><input type="checkbox" id="sgt" aria-label="Show context-aware Python suggestions"></div>
  <div class="row"><span>Brand seal</span><span><button class="tiny" id="su">Upload</button> <button class="tiny" id="sr">Remove</button></span></div>
- <p><a href="../privacy.html" style="color:inherit">Privacy policy</a> · Use the floating Privacy choices button to update optional tracking preferences.</p>
+ <div class="row"><span>Privacy &amp; data</span><button type="button" class="tiny" data-privacy-settings>Privacy settings</button></div>
+ <p><a href="../privacy.html" style="color:inherit">Privacy policy</a> · Your code and learning record are saved on this device.</p>
  <h2 style="margin-top:18px">Help</h2>
  <ul><li><b>Live input():</b> on GitHub Pages, <code>coi-serviceworker.js</code> enables the browser isolation required for terminal input. The first visit may reload once automatically. If isolation is unavailable (for example, in some private-browsing modes), the Prepared answers fallback appears instead.</li>
  <li><b>Stop:</b> normally interrupts the running program and keeps Python state. If the browser cannot provide cross-origin isolation, Stop safely restarts Python instead.</li>
@@ -447,10 +448,10 @@ let files=Object.create(null),active='',seal=store.get(SK)||'',prefs={fs:15,clr:
  active=files[s&&s.active]!==undefined?s.active:Object.keys(files)[0];
  if(!seal&&s&&/^data:image\//.test(s.seal||''))seal=s.seal;
  try{prefs={...prefs,...JSON.parse(store.get(PK)||'{}')}}catch{}try{hist=JSON.parse(store.get(HK)||'[]').filter(x=>typeof x==='string').slice(-100)}catch{}hi=hist.length;
- if(store.get(KEY)===null&&!store.set(KEY,JSON.stringify({files,active}))){saveOK=false}})();
+ if(store.get(KEY)===null&&window.AtelierPrivacy&&window.AtelierPrivacy.hasDecision()&&!store.set(KEY,JSON.stringify({files,active}))){saveOK=false}})();
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),3000)}
 function setSaved(m,warn){$('saved').textContent=m;$('saved').classList.toggle('warn',!!warn)}
-function persist(){clearTimeout(timer);files[active]=ed.get();saveOK=store.set(KEY,JSON.stringify({files,active}));
+function persist(){clearTimeout(timer);files[active]=ed.get();if(window.AtelierPrivacy&&!window.AtelierPrivacy.hasDecision())return;saveOK=store.set(KEY,JSON.stringify({files,active}));
  setSaved(saveOK?'Saved on this device':'⚠ NOT saved — storage blocked or full. Export your files.',!saveOK)}
 function changed(){files[active]=ed.get();setSaved('Saving…',true);clearTimeout(timer);timer=setTimeout(persist,400);if(cm)cm.eachLine(l=>cm.removeLineClass(l,'background','cm-err'));scheduleSuggest()}
 function savePrefs(){store.set(PK,JSON.stringify(prefs))}
@@ -722,7 +723,12 @@ if(!iso){$('prep').hidden=false;$('prep').open=true;$('fst').textContent='Runs i
 if(!saveOK)setSaved('⚠ NOT saved — browser storage is blocked. Export your files.',true);
 if (window.AtelierPrivacy) {
   if (!window.AtelierPrivacy.hasDecision()) status('loading','Choose privacy settings to start Python…');
-  window.AtelierPrivacy.afterDecision(function () { boot(); enhance(); });
+  window.AtelierPrivacy.afterDecision(function () {
+    var s = document.createElement('script');
+    s.src = '../coi-serviceworker.js';
+    s.onload = s.onerror = function () { boot(); enhance(); };
+    document.head.appendChild(s);
+  });
 } else {
   status('error','Privacy choices unavailable — reload to start Python.');
 }
