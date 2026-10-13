@@ -23,6 +23,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Online Python IDE & Interpreter — POMEGRANATE × LILY">
 <meta name="twitter:description" content="A free online Python editor and interpreter with a browser runtime, console and Atelier Coach guidance.">
+<script src="../privacy-consent.js"></script>
 <script src="../coi-serviceworker.js"></script>
 <style>
 :root{color-scheme:dark;--bg:#100b0e;--ink:#f3eddf;--mut:#b4a4a7;--gold:#dbb97d;--wine:#922f4a;--leaf:#8db49c;--line:#dbb97d29;--mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--berry:var(--wine);--fs:15px;--vh:100dvh}
@@ -234,6 +235,7 @@ body.coding .CodeMirror,body.coding #src{height:100%!important}
  <div class="row"><span>Clear console on each run</span><input type="checkbox" id="clr" aria-label="Clear console on each run"></div>
  <div class="row"><span>Coach suggestions</span><input type="checkbox" id="sgt" aria-label="Show context-aware Python suggestions"></div>
  <div class="row"><span>Brand seal</span><span><button class="tiny" id="su">Upload</button> <button class="tiny" id="sr">Remove</button></span></div>
+ <p><a href="../privacy.html" style="color:inherit">Privacy policy</a> · Use the floating Privacy choices button to update optional tracking preferences.</p>
  <h2 style="margin-top:18px">Help</h2>
  <ul><li><b>Live input():</b> on GitHub Pages, <code>coi-serviceworker.js</code> enables the browser isolation required for terminal input. The first visit may reload once automatically. If isolation is unavailable (for example, in some private-browsing modes), the Prepared answers fallback appears instead.</li>
  <li><b>Stop:</b> normally interrupts the running program and keeps Python state. If the browser cannot provide cross-origin isolation, Stop safely restarts Python instead.</li>
@@ -718,7 +720,12 @@ async function enhance(){try{const b='https://cdn.jsdelivr.net/npm/codemirror@5.
 showSeal();applyPrefs();showFile();
 if(!iso){$('prep').hidden=false;$('prep').open=true;$('fst').textContent='Runs in your browser · fallback input mode · autosaved on this device'}
 if(!saveOK)setSaved('⚠ NOT saved — browser storage is blocked. Export your files.',true);
-boot();enhance();
+if (window.AtelierPrivacy) {
+  if (!window.AtelierPrivacy.hasDecision()) status('loading','Choose privacy settings to start Python…');
+  window.AtelierPrivacy.afterDecision(function () { boot(); enhance(); });
+} else {
+  status('error','Privacy choices unavailable — reload to start Python.');
+}
 </script>
 <script src="./workbench-bridge.js"></script>
 <script src="./challenges.js"></script>
