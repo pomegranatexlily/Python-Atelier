@@ -11,8 +11,8 @@
 <meta name="apple-mobile-web-app-title" content="Python Atelier">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="../manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png?v=snake-lily-20261017">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png?v=snake-lily-20261017">
 <title>POMEGRANATE × LILY — Python Atelier</title>
 <meta name="description" content="POMEGRANATE × LILY Python Atelier — a focused browser-based Python workspace for writing, running, debugging and learning Python.">
 <meta name="robots" content="noindex,follow">
@@ -185,7 +185,7 @@ body.coding .CodeMirror,body.coding #src{height:100%!important}
 <body>
 <div class="app">
 <header class="top">
- <div class="brand"><button class="seal" id="sealb" aria-label="Upload your brand seal" title="Upload your Pomegranate × Lily seal"><span>P/L</span></button>
+ <div class="brand"><button class="seal" id="sealb" aria-label="Upload your brand seal" title="Upload your Pomegranate × Lily seal"><img src="../icon-192.png?v=snake-lily-20261017" width="44" height="44" alt=""></button>
  <div><div class="bn">POMEGRANATE × LILY</div><div class="sub">Python atelier</div></div></div>
  <div class="right"><button class="tiny" id="restart" title="Restart Python: clears variables, runtime files and pip packages; editor files are kept">Restart</button><button class="tiny" id="sett" aria-label="Settings">⚙</button></div>
 </header>
@@ -703,7 +703,7 @@ $('ci').onkeydown=e=>{if(e.ctrlKey&&e.key.toLowerCase()==='c'&&!getSelection().t
 $('run').onclick=()=>run();$('stop').onclick=stop;$('mrun').onclick=()=>busy()?stop():run();
 $('restart').onclick=()=>{if(busy()&&!confirm('Stop the running program and restart Python?'))return;write('\n↻ Restarting Python — variables, runtime files and pip packages are reset. Editor files are untouched.\n','info');boot('Restarting Python…')};
 /* ---------- seal, settings, shortcuts, mobile keyboard, lifecycle ---------- */
-function showSeal(){const b=$('sealb');b.replaceChildren();if(seal){const i=document.createElement('img');i.src=seal;i.alt='Pomegranate × Lily seal';b.append(i)}else{const s=document.createElement('span');s.textContent='P/L';b.append(s)}}
+function showSeal(){const b=$('sealb');b.replaceChildren();if(seal){const i=document.createElement('img');i.src=seal;i.alt='Pomegranate × Lily seal';b.append(i)}else{const i=document.createElement('img');i.src='../icon-192.png?v=snake-lily-20261017';i.alt='Python Atelier icon';b.append(i)}}
 $('sealb').onclick=$('su').onclick=()=>$('sealf').click();
 $('sr').onclick=()=>{seal='';try{localStorage.removeItem(SK)}catch{}showSeal()};
 $('sealf').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f||!/^image\/(png|jpeg|webp|gif)$/.test(f.type))return toast('Choose a PNG, JPEG, WebP or GIF image.');
