@@ -54,3 +54,5 @@ jobs:
           console.log('Parsed '+jsonCount+' JSON/manifest files and '+htmlCount+' HTML files; checked '+scriptCount+' local scripts.');
           if (remoteCount) console.log(remoteCount+' URL/absolute-path script references require separate deployment and supply-chain review.');
           NODE
+      - name: Verify learning progress and Seed ledger invariants
+        run: node tests/learning-storage.test.cjs
