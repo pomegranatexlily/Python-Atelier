@@ -1,0 +1,26 @@
+name: Python Atelier icon regression
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "app/index.html"
+      - "manifest.webmanifest"
+      - "icon-*.png"
+      - "apple-touch-icon.png"
+      - "favicon-32.png"
+      - "scripts/generate_python_atelier_icons.py"
+      - "scripts/check_python_atelier_icons.py"
+      - ".github/workflows/icon-regression.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  icon-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "Pillow>=10,<13"
+      - run: python scripts/check_python_atelier_icons.py
