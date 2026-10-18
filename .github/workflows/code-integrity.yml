@@ -56,3 +56,5 @@ jobs:
           NODE
       - name: Verify learning progress and Seed ledger invariants
         run: node tests/learning-storage.test.cjs
+      - name: Verify external learning resources and five contextual challenge links
+        run: node tests/learning-resources.test.cjs
