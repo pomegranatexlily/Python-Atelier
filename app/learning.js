@@ -2,6 +2,7 @@
 (() => {
   const Challenges = window.AtelierChallenges;
   const Store = window.AtelierLearningStore;
+  const Resources = window.AtelierResources;
   if (!Challenges || !Store) return;
 
   const statusLabels = {
@@ -14,11 +15,13 @@
   const $ = id => document.getElementById(id);
   const roots = {
     practice: $('practiceRoot'),
+    resources: $('resourcesRoot'),
     garden: $('gardenRoot'),
     record: $('recordRoot')
   };
   let state;
   let activeChallengeId = null;
+  let resourceFilter = 'Start here';
   let checking = false;
   let gardenSaving = false;
   let gardenPendingTx = null;
@@ -118,14 +121,87 @@
     }
     if (location.hash !== '#' + viewName) history.replaceState(null, '', '#' + viewName);
     if (viewName === 'practice') renderPractice();
+    if (viewName === 'resources') renderResources();
     if (viewName === 'garden') renderGarden();
     if (viewName === 'record') renderRecord();
   }
 
   function renderAll() {
+    renderResources();
     renderPractice();
     renderGarden();
     renderRecord();
+  }
+
+
+  // External reference-only links: no imported third-party JavaScript, no
+  // hidden solution files, no auto-run and no changes to learner storage.
+  function allowedStudyUrl(raw) {
+    try {
+      const u = new URL(raw);
+      if (u.protocol === 'https:' &&
+          (u.hostname === 'github.com' || u.hostname === 'roadmap.sh')) return u.href;
+    } catch {}
+    return null;
+  }
+  function resourceLink(entry, label = 'Open resource ↗') {
+    const url = allowedStudyUrl(entry.url);
+    if (!url) return '';
+    return '<a class="resource-link" href="' + escapeHTML(url) +
+      '" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">' +
+      escapeHTML(label) + '</a>';
+  }
+  function renderChallengeResources(challenge) {
+    const found = (Resources?.entries || [])
+      .filter(item => item.challengeIds.includes(challenge.id) && allowedStudyUrl(item.url))
+      .slice(0, 2);
+    if (!found.length) return '';
+    return '<div class="practice-section practice-resources"><h3>Study beside this challenge</h3>' +
+      '<p>Optional reading. Your code, grades and Seeds stay in Atelier.</p>' +
+      '<div class="resource-tips">' +
+      found.map(item => '<div class="resource-tip"><strong>' + escapeHTML(item.title) +
+        '</strong><p>' + escapeHTML(item.exercise) + '</p>' + resourceLink(item) + '</div>').join('') +
+      '</div></div>';
+  }
+
+  function renderResources() {
+    const root = roots.resources;
+    if (!root) return;
+    if (!Resources?.entries || !Resources?.categories) {
+      root.textContent = 'The study resource directory could not be loaded.';
+      return;
+    }
+    const categories = ['All', ...Resources.categories];
+    const items = Resources.entries.filter(item =>
+      (resourceFilter === 'All' || item.category === resourceFilter) && allowedStudyUrl(item.url));
+    root.innerHTML = '<div class="learning-shell"><div class="learning-head"><div>' +
+      '<div class="learning-kicker">Atelier Study Library</div>' +
+      '<h1>Learn it. Then build it.</h1>' +
+      '<p>Ten hand-picked, public learning repositories. Choose a topic, read a little, and practice it in your own Python file.</p></div></div>' +
+      '<div class="learning-note">These are external resources, not installed packages or tested code dependencies. Links open separately. Atelier never runs third-party repository code and never shares your files or Practice Record with them.</div>' +
+      '<div class="resource-filter" aria-label="Filter study resources">' +
+      categories.map(category =>
+        '<button type="button" data-resource-filter="' + escapeHTML(category) +
+        '" aria-pressed="' + (resourceFilter === category ? 'true' : 'false') + '">' +
+        escapeHTML(category) + '</button>').join('') +
+      '</div><div class="resource-grid">' +
+      items.map(item => '<article class="resource-card" data-resource-id="' + escapeHTML(item.id) + '">' +
+        '<div class="resource-meta"><span>' + escapeHTML(item.category) + '</span><span>' +
+        escapeHTML(item.difficulty) + '</span></div><h2>' + escapeHTML(item.title) + '</h2>' +
+        '<p>' + escapeHTML(item.reason) + '</p>' +
+        '<p class="resource-next"><strong>Try this:</strong> ' + escapeHTML(item.exercise) + '</p>' +
+        '<div class="resource-bottom">' + resourceLink(item) +
+        '<span class="resource-origin">' + escapeHTML(item.source) + '</span></div>' +
+        '</article>').join('') +
+      '</div><div class="learning-actions resource-continue">' +
+      '<button type="button" id="resourcesWorkbench">Return to Workbench</button>' +
+      '<button type="button" id="resourcesPractice" class="quiet">Atelier Practice</button>' +
+      '</div></div>';
+    root.querySelectorAll('[data-resource-filter]').forEach(button => {
+      button.onclick = () => { resourceFilter = button.dataset.resourceFilter; renderResources(); };
+    });
+    root.querySelector('#resourcesWorkbench').onclick = () => setProductView('workbench');
+    root.querySelector('#resourcesPractice').onclick = () => setProductView('practice');
   }
 
   function renderPractice() {
@@ -222,6 +298,7 @@
       '<div class="challenge-top"><div><button type="button" class="tiny quiet" id="practiceBack">← All challenges</button><div class="learning-kicker" style="margin-top:10px">CS50P Foundations</div><h2>' + escapeHTML(challenge.title) + '</h2></div>' + statusPill(rec.status) + '</div>' +
       '<div class="practice-section"><h3>Challenge</h3><p>' + escapeHTML(challenge.instructions) + '</p></div>' +
       renderTranslationLayer(challenge) +
+      renderChallengeResources(challenge) +
       '<div class="practice-section"><h3>What You Are Practicing</h3><p>' + escapeHTML(challenge.practice) + '</p><div class="challenge-concepts" style="margin-top:8px">' + challenge.concepts.map(x => '<span>' + escapeHTML(x) + '</span>').join('') + '</div></div>' +
       '<div class="practice-section"><h3>Example</h3><div class="practice-example"><pre>Input\\n' + escapeHTML(challenge.exampleInput.join('\\n')) + '</pre><pre>Expected behavior\\n' + escapeHTML(challenge.expectedBehavior) + '</pre></div></div>' +
       '<div class="practice-section"><div class="learning-actions">' +
@@ -637,5 +714,5 @@
   }
   renderAll();
   const requested = location.hash.replace('#', '');
-  setProductView(['practice','garden','record','workbench'].includes(requested) ? requested : 'workbench');
+  setProductView(['practice','resources','garden','record','workbench'].includes(requested) ? requested : 'workbench');
 })();
