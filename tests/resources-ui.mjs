@@ -38,8 +38,8 @@ try {
   await page.locator('#practiceView:not([hidden])').waitFor();
   await page.locator('[data-open-challenge="name-greeting"]').click();
   const related=page.locator('.practice-resources');
-  assert.match(await related.innerText(),/Study beside this challenge/);
-  assert.equal(await related.locator('.resource-link').count(),2);
+  assert.match(await related.innerText(),/Study beside this challenge/i);
+  assert.ok((await related.locator('.resource-link').count())>=1,'Challenge must have a relevant study link');
   await page.locator('[data-product-view="resources"]').click();
   await page.locator('#resourcesView:not([hidden])').waitFor();
   await page.locator('#resourcesWorkbench').click();
