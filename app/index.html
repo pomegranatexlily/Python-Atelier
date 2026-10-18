@@ -192,6 +192,7 @@ body.coding .CodeMirror,body.coding #src{height:100%!important}
 <nav class="productnav" aria-label="Python Atelier sections">
  <button type="button" data-product-view="workbench" aria-current="page">Workbench</button>
  <button type="button" data-product-view="practice" aria-current="false">Practice</button>
+ <button type="button" data-product-view="resources" aria-current="false">Resources</button>
  <button type="button" data-product-view="garden" aria-current="false">Garden</button>
  <button type="button" data-product-view="record" aria-current="false">Practice Record</button>
 </nav>
@@ -229,6 +230,7 @@ body.coding .CodeMirror,body.coding #src{height:100%!important}
  </section>
 </main>
 <section class="learning-screen" id="practiceView" hidden aria-label="Atelier Practice"><div id="practiceRoot"></div></section>
+<section class="learning-screen" id="resourcesView" hidden aria-label="Curated Python learning resources"><div id="resourcesRoot"></div></section>
 <section class="learning-screen" id="gardenView" hidden aria-label="Atelier Garden"><div id="gardenRoot"></div></section>
 <section class="learning-screen" id="recordView" hidden aria-label="Practice Record"><div id="recordRoot"></div></section>
 <footer class="bot"><span class="eng" id="eng" data-s="loading" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="engl">Starting Python…</span></span><span>Runs in your browser · autosaved on this device</span></footer>
@@ -741,6 +743,7 @@ if (window.AtelierPrivacy) {
 </script>
 <script src="./workbench-bridge.js"></script>
 <script src="./challenges.js"></script>
+<script src="./resources.js"></script>
 <script src="./learning-storage.js"></script>
 <script src="./learning.js"></script>
 </body>
