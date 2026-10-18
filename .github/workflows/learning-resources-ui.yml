@@ -1,0 +1,52 @@
+name: Python Atelier Resource Library Mobile Test
+on:
+  pull_request:
+    paths:
+      - 'app/learning.js'
+      - 'app/learning.css'
+      - 'app/index.html'
+      - 'app/resources.js'
+      - 'tests/learning-resources.test.cjs'
+      - 'tests/resources-ui.mjs'
+      - '.github/workflows/learning-resources-ui.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'app/learning.js'
+      - 'app/learning.css'
+      - 'app/index.html'
+      - 'app/resources.js'
+      - 'tests/learning-resources.test.cjs'
+      - 'tests/resources-ui.mjs'
+      - '.github/workflows/learning-resources-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  resources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check first-party catalog and script syntax
+        run: |
+          node --check app/resources.js
+          node --check app/learning.js
+          node --check tests/resources-ui.mjs
+          node tests/learning-resources.test.cjs
+      - name: Install isolated Chromium for mobile smoke test
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Serve local static Atelier
+        run: python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/atelier-test.log 2>&1 &
+      - name: Check mobile Resource Library in browser
+        run: node tests/resources-ui.mjs
