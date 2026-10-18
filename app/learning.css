@@ -124,3 +124,27 @@ body.coding .productnav{display:none!important}
 .decoder-code{margin:9px 0;padding:12px;background:#0b080a;border:1px solid var(--line);border-radius:8px;overflow-x:auto;white-space:pre;font:12px/1.6 var(--mono);color:#d9eee1;-webkit-overflow-scrolling:touch}
 .decoder-connection{padding-top:7px;color:#c4b4bd;font-size:12px!important}
 @media(max-width:480px){.decoder-term{grid-template-columns:1fr;gap:3px}.assignment-decoder{padding:11px!important}.decoder-code{font-size:11px}}
+
+/* Curated study library, kept separate from the mobile Python editor and grades. */
+.resource-filter{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:13px 0;position:sticky;top:0;z-index:2;background:#100b0ef2}
+.resource-filter::-webkit-scrollbar{display:none}
+.resource-filter button{flex:0 0 auto;min-height:42px;border-radius:999px;padding:8px 13px}
+.resource-filter button[aria-pressed="true"]{background:#922f4a50;border-color:#c85f75;color:#fff0e2}
+.resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:8px 0 17px}
+.resource-card{min-width:0;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#1b1318,#151013);padding:15px;display:flex;flex-direction:column;gap:10px}
+.resource-card h2{font:21px/1.2 Georgia,serif;margin:0}
+.resource-card p{font-size:13px;line-height:1.55;color:#d4c6ca;margin:0;overflow-wrap:anywhere}
+.resource-meta{display:flex;gap:6px;flex-wrap:wrap}
+.resource-meta span{font:10px/1.3 var(--mono);border-radius:20px;border:1px solid var(--line);padding:4px 7px;color:var(--gold)}
+.resource-card .resource-next{border-top:1px solid var(--line);padding-top:9px;color:#e9e1d7}
+.resource-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.resource-link{min-height:42px;display:inline-flex;align-items:center;padding:9px 12px;border-radius:10px;border:1px solid #b94b6c80;background:#922f4a28;font-size:12px;font-weight:700;color:#fff1e5;text-decoration:none}
+.resource-link:focus-visible{outline:3px solid #dbb97d;outline-offset:3px}
+.resource-origin{font:11px/1.4 var(--mono);color:var(--mut);overflow-wrap:anywhere}
+.resource-continue{padding-bottom:32px}
+.resource-tips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}
+.resource-tip{border:1px solid var(--line);border-radius:11px;padding:11px;background:#130f12}
+.resource-tip strong{color:var(--gold)}
+.resource-tip p{font-size:12px;margin:7px 0 10px}
+@media(max-width:650px){.resource-grid,.resource-tips{grid-template-columns:1fr}.resource-filter{padding:8px 0}.resource-card{padding:13px}}
+@media(prefers-reduced-motion:reduce){.resource-link,.resource-filter button{transition:none}}
