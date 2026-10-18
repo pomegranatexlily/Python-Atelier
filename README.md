@@ -6,6 +6,7 @@ Python Atelier is a mobile-first, browser-based Python workbench with a real Pyo
 
 - **Workbench** — write, run, debug, import, export, and autosave real Python files.
 - **Atelier Practice** — five CS50P Foundations challenges with bounded hints, controlled self-checks, and learner reflection.
+- **Resource Library** — ten curated public learning repositories from a founder-selected video. Filter beginner topics, project tutorials or advanced resources; reference links appear next to relevant Practice challenges. External links open separately and never execute repository code.
 - **Assignment Decoder** — built into each of the five Practice challenges: original instructions, plain-English translation, terminology map, step-by-step plan, and a separate-topic worked example with matching control flow and method counts. Worked examples never overwrite learner files or change grading.
 - **Seeds** — once-only rewards for challenge completion, required reflection, and eligible debugging recovery.
 - **Atelier Garden** — an optional SVG/CSS pomegranate plant grown by investing earned Seeds.
@@ -25,6 +26,12 @@ Choose Challenge
 → Invest Seeds
 → Grow Garden
 ```
+
+## Curated study resources
+
+In the Atelier app, open **Resources** alongside Workbench and Practice. The first view prioritizes freeCodeCamp, freely available programming books and the Python developer roadmap. Project resources and advanced systems topics are available through filters; the workbench stays ready for experiments. Five CS50P Practice assignments also show context-specific resource links.
+
+These links are third-party educational references, not integrated libraries, user-authorized API calls, graded solutions or downloadable code. Resources do not touch Python files, local Practice Records, Seeds, or the real `input()` runtime. See [the all-ten video repository evaluation](docs/video-repository-audit-2026-10-17.md) for which repositories make sense for Atelier, POM and Packet Lily.
 
 ## Runtime architecture
 
