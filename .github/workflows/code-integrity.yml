@@ -58,3 +58,5 @@ jobs:
         run: node tests/learning-storage.test.cjs
       - name: Verify external learning resources and five contextual challenge links
         run: node tests/learning-resources.test.cjs
+      - name: Verify challenge starter code and example line breaks
+        run: node tests/challenge-content.test.cjs
