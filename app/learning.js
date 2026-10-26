@@ -300,7 +300,7 @@
       renderTranslationLayer(challenge) +
       renderChallengeResources(challenge) +
       '<div class="practice-section"><h3>What You Are Practicing</h3><p>' + escapeHTML(challenge.practice) + '</p><div class="challenge-concepts" style="margin-top:8px">' + challenge.concepts.map(x => '<span>' + escapeHTML(x) + '</span>').join('') + '</div></div>' +
-      '<div class="practice-section"><h3>Example</h3><div class="practice-example"><pre>Input\\n' + escapeHTML(challenge.exampleInput.join('\\n')) + '</pre><pre>Expected behavior\\n' + escapeHTML(challenge.expectedBehavior) + '</pre></div></div>' +
+      '<div class="practice-section"><h3>Example</h3><div class="practice-example"><pre>Input\n' + escapeHTML(challenge.exampleInput.join('\n')) + '</pre><pre>Expected behavior\n' + escapeHTML(challenge.expectedBehavior) + '</pre></div></div>' +
       '<div class="practice-section"><div class="learning-actions">' +
         '<button type="button" class="primary" id="openChallengeWork">' + (rec.fileName ? 'Reopen Workbench' : 'Start Challenge') + '</button>' +
         '<button type="button" id="runChallenge" ' + (!rec.fileName ? 'disabled' : '') + '>▶ Run</button>' +
