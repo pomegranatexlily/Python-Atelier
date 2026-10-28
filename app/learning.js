@@ -211,7 +211,8 @@
     let html = '<div class="learning-shell">' +
       '<div class="learning-head"><div><div class="learning-kicker">Atelier Practice</div><h1>CS50P Foundations</h1><p>Choose a challenge, write real Python in the Workbench, then use Check My Work when you are ready.</p></div>' +
       '<div>' + statusPill(done === Challenges.challenges.length ? 'completed' : 'in_progress') + '</div></div>' +
-      '<div class="progress-wrap"><div class="progress-track" aria-label="' + done + ' of ' + Challenges.challenges.length + ' challenges completed"><div class="progress-fill" style="width:' + (done / Challenges.challenges.length * 100) + '%"></div></div><div class="progress-label"><span>' + done + ' of ' + Challenges.challenges.length + ' completed</span><span>Run ≠ completion</span></div></div>';
+      '<div class="progress-wrap"><div class="progress-track" aria-label="' + done + ' of ' + Challenges.challenges.length + ' challenges completed"><div class="progress-fill" style="width:' + (done / Challenges.challenges.length * 100) + '%"></div></div><div class="progress-label"><span>' + done + ' of ' + Challenges.challenges.length + ' completed</span><span>Run ≠ completion</span></div></div>' +
+      '<div class="progress-dots">' + Challenges.challenges.map(function (c, i) { const r = getRecord(c.id); return '<span class="progress-dot" data-dot-status="' + r.status + '" aria-label="Challenge ' + (i + 1) + ': ' + (statusLabels[r.status] || r.status) + '"></span>'; }).join('') + '</div>';
 
     if (activeChallengeId) {
       const challenge = Challenges.byId[activeChallengeId];
@@ -226,7 +227,7 @@
     for (const challenge of Challenges.challenges) {
       const rec = getRecord(challenge.id);
       html += '<article class="challenge-card">' +
-        '<div class="challenge-top"><div><div class="learning-kicker">Challenge ' + (Challenges.challenges.indexOf(challenge) + 1) + '</div><h2>' + escapeHTML(challenge.title) + '</h2></div>' + statusPill(rec.status) + '</div>' +
+        '<div class="challenge-top"><span class="challenge-num" aria-hidden="true">' + String(Challenges.challenges.indexOf(challenge) + 1).padStart(2, '0') + '</span><div><div class="learning-kicker">Challenge ' + (Challenges.challenges.indexOf(challenge) + 1) + '</div><h2>' + escapeHTML(challenge.title) + '</h2></div>' + statusPill(rec.status) + '</div>' +
         '<div class="challenge-concepts">' + challenge.concepts.map(x => '<span>' + escapeHTML(x) + '</span>').join('') + '</div>' +
         '<p>' + escapeHTML(challenge.practice) + '</p>' +
         '<div class="learning-actions"><button type="button" data-open-challenge="' + challenge.id + '">' + (rec.status === 'not_started' ? 'View Challenge' : 'Continue') + '</button>' +
