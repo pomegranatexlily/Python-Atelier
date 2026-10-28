@@ -26,7 +26,9 @@ permissions:
 
 jobs:
   resources:
-    runs-on: ubuntu-latest
+    # Playwright 1.56.1 does not support Chromium dependencies on ubuntu-26.04.
+    # Pin the existing browser smoke test to a supported, stable runner image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
