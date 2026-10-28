@@ -211,6 +211,30 @@ button:active:not(:disabled){transform:translateY(1px)}
  .views [aria-pressed="true"]{border-color:#b94b6c80}
 }
 </style>
+<style id="atelier-mobile-touch-fixes">
+/* Mobile touch fixes (additive only): keybar tap-vs-scroll, views-bar reachability, coding top guard. */
+.keybar{touch-action:pan-x}
+body.coding .views{order:0!important}
+body.coding .app{padding:max(12px,env(safe-area-inset-top)) 0 0!important}
+body.coding .CodeMirror-lines{padding-top:max(12px,env(safe-area-inset-top))!important}
+body.coding #src{padding-top:max(12px,env(safe-area-inset-top))!important}
+body.coding .CodeMirror-scroll{scroll-padding-top:max(12px,env(safe-area-inset-top))}
+/* Coding-mode panel swap: the prior upgrade's body.coding .ed{display:flex!important}
+   otherwise overrides the view-switch hiding rule, so Console never replaced Code while coding. */
+body.coding .ws[data-v=console] .ed{display:none!important}
+body.coding .ws[data-v=code] .con{display:none!important}
+</style>
+<style id="atelier-mobile-fixes-2">
+/* Mobile transition + toast + keyboard-open fixes (additive; desktop untouched). */
+@media(max-width:800px){
+ .ws[data-v="code"] .ed,.ws[data-v="console"] .con{animation:none}
+ .toast{bottom:calc(118px + env(safe-area-inset-bottom))}
+ body.kbd-open .toast{top:calc(8px + env(safe-area-inset-top));bottom:auto}
+ body.coding .toast{top:auto;bottom:calc(132px + env(safe-area-inset-bottom))}
+ body.kbd-open .top,body.kbd-open .productnav,body.kbd-open .bar,body.kbd-open .ed .tabs,body.kbd-open .ed .fm{display:none!important}
+}
+body.atelier-settling .app *{animation:none!important;transition:none!important}
+</style>
 <link rel="stylesheet" href="./learning.css">
 </head>
 <body>
@@ -547,22 +571,30 @@ let codingBaseH=0,sawKeyboard=false;
 function mobileCoding(on){
  if(on&&!matchMedia('(max-width:800px)').matches)return;
  const was=document.body.classList.contains('coding');
+ settleStart();
  document.body.classList.toggle('coding',!!on);
  if(on&&!was){codingBaseH=Math.round((window.visualViewport&&visualViewport.height)||innerHeight);sawKeyboard=false}
- requestAnimationFrame(()=>{if(cm)cm.refresh()})
+ let mcSettled=false; const mcEnd=()=>{if(mcSettled)return;mcSettled=true;settleEnd()};
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{if(cm)cm.refresh();mcEnd()}));
+ setTimeout(mcEnd,400)
 }
 $('es').addEventListener('pointerdown',()=>mobileCoding(true),true);
 $('es').addEventListener('touchstart',()=>mobileCoding(true),{capture:true,passive:true});
 ta.addEventListener('focus',()=>mobileCoding(true));
-ta.addEventListener('blur',()=>setTimeout(()=>{const a=document.activeElement;if(a!==ta&&!(a&&a.closest&&a.closest('.CodeMirror')))mobileCoding(false)},120));
+ta.addEventListener('blur',()=>setTimeout(()=>{if(viewSwitching)return;const a=document.activeElement;if(a!==ta&&!(a&&a.closest&&a.closest('.CodeMirror')))mobileCoding(false)},120));
 document.addEventListener('focusin',e=>{const t=e.target;if(t===ta||(t&&t.closest&&t.closest('.CodeMirror')))mobileCoding(true)},true);
-document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(a!==ta&&!(a&&a.closest&&a.closest('.CodeMirror')))mobileCoding(false)},120),true);
+document.addEventListener('focusout',()=>setTimeout(()=>{if(viewSwitching)return;const a=document.activeElement;if(a!==ta&&!(a&&a.closest&&a.closest('.CodeMirror')))mobileCoding(false)},120),true); document.addEventListener('focusin',e=>{const t=e.target;if(t===$('src')||t===$('ci')||(t&&t.closest&&t.closest('.CodeMirror')))document.body.classList.add('kbd-open')},true); document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!(a===$('src')||a===$('ci')||(a&&a.closest&&a.closest('.CodeMirror'))))document.body.classList.remove('kbd-open')},150),true);
 ta.addEventListener('input',()=>{changed();gutter();cursor()});ta.addEventListener('scroll',gutter);['click','keyup'].forEach(e=>ta.addEventListener(e,cursor));
 ta.addEventListener('keydown',e=>{if(e.isComposing)return;const a=ta.selectionStart,b=ta.selectionEnd;
  const ins=s=>{e.preventDefault();ta.setRangeText(s,a,b,'end');ta.dispatchEvent(new Event('input',{bubbles:true}))};
  if(e.key==='Tab'&&!e.shiftKey)ins('    ');else if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey){const ln=ta.value.slice(0,a).split('\n').pop();ins('\n'+ln.match(/^\s*/)[0]+(/:\s*(#.*)?$/.test(ln)?'    ':''))}});
 function insertKey(s){if(cm){cm.replaceSelection(s,'end');cm.focus();return}const a=ta.selectionStart,b=ta.selectionEnd;ta.focus();ta.setRangeText(s,a,b,'end');ta.dispatchEvent(new Event('input',{bubbles:true}))}
-$('keybar').addEventListener('pointerdown',e=>{const b=e.target.closest('button[data-key]');if(!b)return;e.preventDefault();insertKey(b.dataset.key)});
+(function(){const kb=$('keybar');let sx=0,sy=0,moved=false;
+kb.addEventListener('pointerdown',e=>{const b=e.target.closest('button[data-key]');if(!b)return;e.preventDefault();sx=e.clientX;sy=e.clientY;moved=false});
+kb.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-sx)>10||Math.abs(e.clientY-sy)>10)moved=true});
+kb.addEventListener('pointercancel',()=>{moved=true;ed.focus()});
+kb.addEventListener('pointerup',e=>{const b=e.target.closest('button[data-key]');if(!b)return;if(moved){ed.focus();return}insertKey(b.dataset.key)});
+kb.addEventListener('click',e=>{const b=e.target.closest('button[data-key]');if(!b||e.detail!==0)return;insertKey(b.dataset.key)})})();
 function showFile(){hideSuggest();if(cm){cm.swapDoc(doc(active))}else{ta.value=files[active];gutN=0;gutter()}$('etype').textContent=active.endsWith('.py')?'Python':'Text';tabs();cursor()}
 function switchFile(n){if(n===active)return;persist();active=n;showFile();persist();ed.focus()}
 function tabs(){const b=$('tabs');b.replaceChildren();for(const n in files){const t=document.createElement('button');t.className='tab';t.textContent=n;t.setAttribute('role','tab');t.setAttribute('aria-selected',String(n===active));t.tabIndex=n===active?0:-1;t.onclick=()=>switchFile(n);b.append(t)}
@@ -671,16 +703,14 @@ function sync(){const b=busy(),s=rt.st;$('run').disabled=false;$('run').textCont
  $('inputhint').classList.toggle('show',inp);$('inputhint').hidden=!inp;
  $('sendb').textContent=inp?'Send':'Enter';$('sendb').setAttribute('aria-label',inp?'Send program input':'Enter console command');
  $('ci').placeholder=inp?'Type your answer here…':b?'Running… (Ctrl+C to stop)':'Type help for commands';$('ci').disabled=b&&!inp}
+let viewSwitching=false;
+let settlingN=0; function settleStart(){settlingN++;document.body.classList.add('atelier-settling')} function settleEnd(){if(--settlingN<=0){settlingN=0;document.body.classList.remove('atelier-settling')}} function switchView(v,focusFn){viewSwitching=true;settleStart();const a=document.activeElement;if(a&&a.blur&&((v==='console'&&a!==$('ci'))||(v!=='console'&&a===$('ci')))){try{a.blur()}catch(e){}}view(v);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(focusFn)focusFn();if(v==='code'&&cm)cm.refresh()}));setTimeout(()=>{viewSwitching=false;settleEnd()},300)}
 const view=v=>{$('ws').dataset.v=v;$('vcode').setAttribute('aria-pressed',String(v==='code'));$('vcon').setAttribute('aria-pressed',String(v==='console'))};
-function forceKeyboard(){
- view('code');
- if(cm){cm.focus();const inp=cm.getInputField&&cm.getInputField();if(inp)inp.focus({preventScroll:true});requestAnimationFrame(()=>cm.refresh())}
- else ta.focus({preventScroll:true});
-}
-$('vcode').onclick=()=>{view('code');ed.focus()};$('kbdopen').onclick=forceKeyboard;
-function exitCoding(){if(cm){const inp=cm.getInputField&&cm.getInputField();if(inp)inp.blur()}else ta.blur();const a=document.activeElement;if(a&&a.blur)a.blur();mobileCoding(false)}
+function forceKeyboard(){switchView('code',()=>{if(cm){cm.focus();const inp=cm.getInputField&&cm.getInputField();if(inp)inp.focus({preventScroll:true});requestAnimationFrame(()=>cm.refresh())}else ta.focus({preventScroll:true})})}
+$('vcode').onclick=()=>switchView('code',()=>ed.focus());$('kbdopen').onclick=forceKeyboard;
+function exitCoding(){if(cm){const inp=cm.getInputField&&cm.getInputField();if(inp)inp.blur()}else ta.blur();const a=document.activeElement;if(a&&a.blur)a.blur();document.body.classList.remove('kbd-open');mobileCoding(false)}
 $('codingDone').onclick=exitCoding;
-$('vcon').onclick=()=>{view('console');$('ci').focus()};
+$('vcon').onclick=()=>switchView('console',()=>$('ci').focus());
 function boot(label,force){
  if(rt.booting&&!force)return;rt.booting=true;clearInterval(rt.tick);
  clearTimeout(rt.grace);clearTimeout(rt.bt);if(rt.w)rt.w.terminate();rt.waiting=false;rt.stopping=false;rt.synced=new Map();rt.cur=++rt.seq;
@@ -754,8 +784,8 @@ $('sett').onclick=()=>$('sd').showModal();$('sdc').onclick=()=>$('sd').close();
 $('fd').onclick=()=>{prefs.fs=Math.max(12,prefs.fs-1);applyPrefs();savePrefs()};$('fu').onclick=()=>{prefs.fs=Math.min(24,prefs.fs+1);applyPrefs();savePrefs()};$('clr').onchange=e=>{prefs.clr=e.target.checked;savePrefs()};$('sgt').onchange=e=>{prefs.suggest=e.target.checked;savePrefs();if(prefs.suggest)scheduleSuggest();else hideSuggest()};
 document.addEventListener('keydown',e=>{if(!(e.metaKey||e.ctrlKey))return;if(e.key==='Enter'){e.preventDefault();if(!$('sd').open)run()}else if(e.key.toLowerCase()==='s'){e.preventDefault();persist();toast(saveOK?'Saved on this device. Export for a backup.':'Browser storage is unavailable — use Export.')}},true);
 const vv=window.visualViewport;if(vv){let lastH=0;const f=()=>{const h=Math.round(vv.height);document.documentElement.style.setProperty('--vh',h+'px');
- if(document.body.classList.contains('coding')&&codingBaseH){if(h<codingBaseH-90)sawKeyboard=true;else if(sawKeyboard&&h>codingBaseH-45)mobileCoding(false)}
- if(cm&&Math.abs(h-lastH)>24)requestAnimationFrame(()=>cm.refresh());lastH=h};vv.addEventListener('resize',f);vv.addEventListener('scroll',f);f()}
+ if(document.body.classList.contains('coding')&&codingBaseH){if(h<codingBaseH-90)sawKeyboard=true;else if(!viewSwitching&&sawKeyboard&&h>codingBaseH-45)mobileCoding(false)}
+ if(cm&&Math.abs(h-lastH)>24){clearTimeout(vv._rt);vv._rt=setTimeout(()=>cm.refresh(),120)} if(h>window.innerHeight-45){const a=document.activeElement;if(!(a===$('src')||a===$('ci')||(a&&a.closest&&a.closest('.CodeMirror'))))document.body.classList.remove('kbd-open')}lastH=h};vv.addEventListener('resize',f);vv.addEventListener('scroll',f);f()}
 window.addEventListener('pagehide',persist);document.addEventListener('visibilitychange',()=>{if(document.hidden)persist()});
 window.addEventListener('beforeunload',e=>{if(!saveOK){e.preventDefault();e.returnValue=''}});
 window.addEventListener('storage',e=>{if(e.key===KEY)toast('Another tab changed your workspace. Reload before editing here to avoid overwriting it.')});
@@ -763,7 +793,7 @@ function loadScript(u){return new Promise((ok,no)=>{const s=document.createEleme
 async function enhance(){try{const b='https://cdn.jsdelivr.net/npm/codemirror@5.65.18/';await loadScript(b+'lib/codemirror.js');await Promise.all([loadScript(b+'mode/python/python.js'),loadScript(b+'addon/edit/matchbrackets.js')]);
  persist();cm=CodeMirror.fromTextArea(ta,{mode:null,lineNumbers:true,indentUnit:4,tabSize:4,indentWithTabs:false,matchBrackets:true,inputStyle:'textarea',viewportMargin:20,screenReaderLabel:'Source code',
   extraKeys:{Tab:c=>c.somethingSelected()?c.indentSelection('add'):c.replaceSelection('    ','end'),'Shift-Tab':c=>c.indentSelection('subtract')}});
- $('gut').hidden=true;cm.on('focus',()=>mobileCoding(true));cm.on('blur',()=>setTimeout(()=>mobileCoding(false),80));cm.on('change',changed);cm.on('cursorActivity',cursor);showFile();applyPrefs()}catch{$('einfo').textContent='Plain editor (no highlighting) · 4 spaces'}}
+ $('gut').hidden=true;cm.on('focus',()=>mobileCoding(true));cm.on('blur',()=>setTimeout(()=>{if(!viewSwitching)mobileCoding(false)},80));cm.on('change',changed);cm.on('cursorActivity',cursor);showFile();applyPrefs()}catch{$('einfo').textContent='Plain editor (no highlighting) · 4 spaces'}}
 showSeal();applyPrefs();showFile();
 if(!iso){$('prep').hidden=false;$('prep').open=true;$('fst').textContent='Runs in your browser · fallback input mode · autosaved on this device'}
 if(!saveOK)setSaved('⚠ NOT saved — browser storage is blocked. Export your files.',true);
