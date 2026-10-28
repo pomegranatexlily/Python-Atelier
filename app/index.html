@@ -128,7 +128,7 @@ details textarea{display:block;width:calc(100% - 28px);height:64px;margin:0 14px
 #sendb{min-width:64px;font-weight:700}
 .cmdrow[data-m=input] #sendb{background:var(--berry);border-color:#d96586;color:#fff}
 .bot{display:flex;justify-content:space-between;padding:8px 2px 10px;color:#99818c;font-size:10px;flex-shrink:0}
-.coding-done{display:none;position:absolute;top:10px;right:10px;z-index:20;padding:7px 12px;border-radius:9px;background:#30212a;border:1px solid var(--line);font-size:12px;font-weight:650;box-shadow:0 4px 16px #0006}
+.coding-done{display:none;position:absolute;top:10px;right:10px;z-index:20;min-height:44px;align-items:center;padding:10px 14px;border-radius:9px;background:#30212a;border:1px solid var(--line);font-size:12px;font-weight:650;box-shadow:0 4px 16px #0006}
 body.coding .coding-done{display:inline-flex}
 .toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#30212a;border:1px solid var(--line);border-radius:12px;padding:10px 18px;z-index:30;font-size:13px;transition:opacity .2s,transform .2s;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -186,10 +186,36 @@ body.coding .ed .es{height:100%;min-height:0;flex:1}
 body.coding .CodeMirror,body.coding #src{height:100%!important}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+
+<style id="atelier-ui-upgrade">
+/* Atelier UI upgrade: depth, hierarchy, motion. Additive overrides only;
+   existing layout, ids, and behavior rules above are untouched. */
+:root{--mut:#c9b7bc;--ease:cubic-bezier(.22,.8,.3,1)}
+button{transition:background .35s var(--ease),border-color .35s var(--ease),transform .35s var(--ease)}
+button:active:not(:disabled){transform:translateY(1px)}
+.app{position:relative}
+.atelier-backdrop{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(640px 420px at var(--px,18%) var(--py,0%),#651b3040,transparent 60%),radial-gradient(720px 520px at 85% 100%,#21452e35,transparent 55%),radial-gradient(420px 300px at 82% 18%,#dbb97d14,transparent 60%)}
+.app>*:not(.atelier-backdrop){position:relative;z-index:1}
+.panel{box-shadow:0 24px 60px #0006;transition:box-shadow .7s var(--ease),border-color .7s var(--ease)}
+.panel:focus-within{border-color:#dbb97d70;box-shadow:0 24px 60px #0008,0 0 0 1px #dbb97d40}
+@keyframes atelier-panel-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ws[data-v="code"] .ed,.ws[data-v="console"] .con{animation:atelier-panel-in .7s var(--ease)}
+.bot .eng{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border:1px solid var(--line);border-radius:999px;background:#ffffff08}
+.bot{align-items:center}
+.fm{padding:4px 14px}
+.tabs{padding:5px 9px}
+.ph{height:40px}
+@media(max-width:800px){
+ .views{padding:4px;border-radius:999px}
+ .views button{border-color:transparent;border-radius:999px}
+ .views [aria-pressed="true"]{border-color:#b94b6c80}
+}
+</style>
 <link rel="stylesheet" href="./learning.css">
 </head>
 <body>
 <div class="app">
+<div class="atelier-backdrop" aria-hidden="true"></div>
 <header class="top">
  <div class="brand"><button class="seal" id="sealb" aria-label="Upload your brand seal" title="Upload your Pomegranate × Lily seal"><span>P/L</span></button>
  <div><div class="bn">POMEGRANATE × LILY</div><div class="sub">Python atelier</div></div></div>
@@ -758,6 +784,23 @@ if (window.AtelierPrivacy) {
 <script src="./resources.js"></script>
 <script src="./learning-storage.js"></script>
 <script src="./learning.js"></script>
+
+<script>
+/* Atelier UI upgrade: gentle pointer parallax for the backdrop only.
+   Standalone, no interaction with the runtime. Disabled for coarse
+   pointers and reduced motion. */
+(function(){try{
+  if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(pointer: fine)').matches)return;
+  var bg=document.querySelector('.atelier-backdrop');if(!bg)return;
+  var raf=0;
+  document.addEventListener('pointermove',function(e){
+    if(raf)return;raf=requestAnimationFrame(function(){raf=0;
+      bg.style.setProperty('--px',(e.clientX/window.innerWidth*100).toFixed(1)+'%');
+      bg.style.setProperty('--py',(e.clientY/window.innerHeight*100).toFixed(1)+'%');
+    });
+  },{passive:true});
+}catch(e){}})();
+</script>
 </body>
 </html>
 

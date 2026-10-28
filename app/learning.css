@@ -148,3 +148,28 @@ body.coding .productnav{display:none!important}
 .resource-tip p{font-size:12px;margin:7px 0 10px}
 @media(max-width:650px){.resource-grid,.resource-tips{grid-template-columns:1fr}.resource-filter{padding:8px 0}.resource-card{padding:13px}}
 @media(prefers-reduced-motion:reduce){.resource-link,.resource-filter button{transition:none}}
+
+/* Atelier UI upgrade (Tier 1 polish + Tier 2 challenge badges/dots).
+   Appended rules only; existing rules above are untouched. */
+.learning-head p{font-size:13px;line-height:1.55}
+.learning-note{font-size:13px;line-height:1.55}
+.challenge-card{padding:18px;gap:11px;transition:transform .7s cubic-bezier(.22,.8,.3,1),box-shadow .7s cubic-bezier(.22,.8,.3,1)}
+.challenge-card p{font-size:13px;line-height:1.55}
+.challenge-card h2{font-size:23px}
+.challenge-concepts span{font-size:11px}
+.learning-kicker{font-size:11px}
+.practice-detail{padding:20px}
+.productnav button{min-height:40px}
+.learning-actions button{transition:background .35s cubic-bezier(.22,.8,.3,1),border-color .35s cubic-bezier(.22,.8,.3,1),transform .35s cubic-bezier(.22,.8,.3,1)}
+.progress-fill{transition:width .7s cubic-bezier(.22,.8,.3,1)}
+@media (hover:hover){.challenge-card:hover{transform:translateY(-2px);box-shadow:0 20px 44px #0005}}
+.challenge-num{flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;border:1px solid #dbb97d70;border-radius:50%;color:var(--gold);font:17px Georgia,serif;background:#dbb97d14}
+.progress-dots{display:flex;gap:8px;margin:10px 0 4px}
+.progress-dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--line);background:transparent}
+.progress-dot[data-dot-status="completed"]{background:var(--leaf);border-color:var(--leaf)}
+.progress-dot[data-dot-status="in_progress"],.progress-dot[data-dot-status="checked"]{background:var(--gold);border-color:var(--gold)}
+.progress-dot[data-dot-status="needs_revision"]{background:#f4a4b5;border-color:#f4a4b5}
+@media (prefers-reduced-motion: reduce){
+ .challenge-card,.progress-fill,.learning-actions button{transition:none}
+ .challenge-card:hover{transform:none}
+}
