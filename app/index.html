@@ -128,6 +128,8 @@ details textarea{display:block;width:calc(100% - 28px);height:64px;margin:0 14px
 #sendb{min-width:64px;font-weight:700}
 .cmdrow[data-m=input] #sendb{background:var(--berry);border-color:#d96586;color:#fff}
 .bot{display:flex;justify-content:space-between;padding:8px 2px 10px;color:#99818c;font-size:10px;flex-shrink:0}
+.coding-done{display:none;position:absolute;top:10px;right:10px;z-index:20;padding:7px 12px;border-radius:9px;background:#30212a;border:1px solid var(--line);font-size:12px;font-weight:650;box-shadow:0 4px 16px #0006}
+body.coding .coding-done{display:inline-flex}
 .toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#30212a;border:1px solid var(--line);border-radius:12px;padding:10px 18px;z-index:30;font-size:13px;transition:opacity .2s,transform .2s;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 dialog{background:#21171d;color:var(--ink);border:1px solid #dbb97d40;border-radius:18px;width:min(440px,calc(100% - 32px));padding:22px}
@@ -158,10 +160,12 @@ dialog::backdrop{background:#080508c0}dialog h2{font:22px Georgia,serif;margin:0
  .fm{padding:5px 10px}.saved{max-width:42%;overflow:hidden;text-overflow:ellipsis}
  .ph{height:38px;padding:0 10px}.tabs{padding:6px 7px}.foot{padding:0 10px}
  .bot{order:4;padding:6px 2px 3px}
- body.coding .top,body.coding .bar,body.coding .bot,body.coding .views{display:none}
- body.coding .ed .ph,body.coding .ed .tabs,body.coding .ed .fm,body.coding .ed .foot,body.coding .ed .keybar{display:none}
+ body.coding .top,body.coding .bar,body.coding .bot{display:none}
+ body.coding .ed .ph,body.coding .ed .tabs,body.coding .ed .fm,body.coding .ed .foot{display:none}
  body.coding .app{padding:env(safe-area-inset-top) 0 0;height:var(--vh);overscroll-behavior:none}
- body.coding .ws{order:1;display:block;height:100%;min-height:0}
+ body.coding .ws{order:1;display:block;flex:1 1 auto;min-height:0;height:auto}
+ body.coding .views{order:2;display:grid;margin:8px 8px calc(8px + env(safe-area-inset-bottom))}
+ body.coding .ed .keybar{display:flex}
  body.coding .panel{height:100%;border:0;border-radius:0;box-shadow:none}
  body.coding .ed{height:100%;min-height:0}
  body.coding .ed .es{height:100%;min-height:0;flex:1}
@@ -170,10 +174,12 @@ dialog::backdrop{background:#080508c0}dialog h2{font:22px Georgia,serif;margin:0
  body.coding .CodeMirror pre.CodeMirror-line{padding-left:10px;padding-right:10px}
  body.coding .CodeMirror-linenumber{padding-left:4px;padding-right:8px}
 }
-body.coding .top,body.coding .bar,body.coding .bot,body.coding .views{display:none!important}
-body.coding .ed .ph,body.coding .ed .tabs,body.coding .ed .fm,body.coding .ed .foot,body.coding .ed .keybar{display:none!important}
+body.coding .top,body.coding .bar,body.coding .bot{display:none!important}
+body.coding .ed .ph,body.coding .ed .tabs,body.coding .ed .fm,body.coding .ed .foot{display:none!important}
 body.coding .app{padding:env(safe-area-inset-top) 0 0!important;height:var(--vh);overscroll-behavior:none}
-body.coding .ws{order:1!important;display:block!important;height:100%;min-height:0}
+body.coding .ws{order:1!important;display:block!important;flex:1 1 auto!important;min-height:0;height:auto!important}
+body.coding .views{display:grid!important;order:2!important}
+body.coding .ed .keybar{display:flex!important}
 body.coding .panel{height:100%;border:0;border-radius:0;box-shadow:none}
 body.coding .ed{display:flex!important;height:100%;min-height:0}
 body.coding .ed .es{height:100%;min-height:0;flex:1}
@@ -197,14 +203,14 @@ body.coding .CodeMirror,body.coding #src{height:100%!important}
  <button type="button" data-product-view="record" aria-current="false">Practice Record</button>
 </nav>
 <div class="bar"><h1>Make something beautiful.</h1>
- <div class="tools"><button id="openb" title="Import text files">Open</button><button id="exp" title="Download current file">Export</button><button id="run" class="primary" disabled title="Run (Ctrl/⌘ + Enter)">▶ Run</button><button id="stop" class="danger" hidden title="Stop (Ctrl+C in the console)">■ Stop</button></div></div>
-<div class="views" role="group" aria-label="Mobile workspace controls"><button id="vcode" aria-pressed="true">Code</button><button id="kbdopen" aria-label="Show coding keyboard">⌨ Keyboard</button><button id="mrun" class="primary" disabled>▶ Run</button><button id="vcon" aria-pressed="false">Console</button></div>
+ <div class="tools"><button id="openb" title="Import text files">Open</button><button id="exp" title="Download current file">Export</button><button id="run" class="primary" title="Run (Ctrl/⌘ + Enter)">▶ Run</button><button id="stop" class="danger" hidden title="Stop (Ctrl+C in the console)">■ Stop</button></div></div>
+<div class="views" role="group" aria-label="Mobile workspace controls"><button id="vcode" aria-pressed="true">Code</button><button id="kbdopen" aria-label="Show coding keyboard">⌨ Keyboard</button><button id="mrun" class="primary">▶ Run</button><button id="vcon" aria-pressed="false">Console</button></div>
 <main class="ws" id="ws" data-v="code">
  <section class="panel ed" aria-label="Code editor">
   <div class="ph"><span>WORKSPACE</span><span class="i" id="etype">Python</span></div>
   <div class="tabs" id="tabs" role="tablist" aria-label="Files"></div>
   <div class="fm"><label class="vh" for="fname">Filename (Enter to rename)</label><input id="fname" spellcheck="false" autocomplete="off" autocapitalize="off"><span class="saved" id="saved" role="status">Saved on this device</span><button class="tiny" id="del" aria-label="Delete this file">Delete</button></div>
-  <div class="es" id="es"><pre class="gut" id="gut" aria-hidden="true">1</pre><textarea id="src" aria-label="Source code" wrap="off" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+  <div class="es" id="es"><pre class="gut" id="gut" aria-hidden="true">1</pre><textarea id="src" aria-label="Source code" wrap="off" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea><button type="button" id="codingDone" class="coding-done" aria-label="Done editing, show workspace controls">Done ⌄</button>
    <div class="suggest" id="suggest" role="listbox" aria-label="Python suggestions"><div class="suggesthead"><strong>PYTHON GUIDE</strong><span id="suggestwhy">Context suggestions</span></div><div id="suggestlist"></div></div>
   </div>
   <div class="keybar" id="keybar" aria-label="Python coding keys">
@@ -233,7 +239,7 @@ body.coding .CodeMirror,body.coding #src{height:100%!important}
 <section class="learning-screen" id="resourcesView" hidden aria-label="Curated Python learning resources"><div id="resourcesRoot"></div></section>
 <section class="learning-screen" id="gardenView" hidden aria-label="Atelier Garden"><div id="gardenRoot"></div></section>
 <section class="learning-screen" id="recordView" hidden aria-label="Practice Record"><div id="recordRoot"></div></section>
-<footer class="bot"><span class="eng" id="eng" data-s="loading" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="engl">Starting Python…</span></span><span>Runs in your browser · autosaved on this device</span></footer>
+<footer class="bot"><span class="eng" id="eng" data-s="loading" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="engl">Starting Python…</span></span><button type="button" class="tiny quiet" id="bootRetry" hidden title="Restart Python loading">Retry</button><span id="fst">Runs in your browser · autosaved on this device</span></footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
 <input type="file" id="filef" multiple accept=".py,.txt,.json,.csv,.md,.yaml,.yml,.toml,.ini" hidden>
@@ -630,11 +636,11 @@ $('coachapply').onclick=()=>{if(!coach.file||!coach.line||!coach.replacement)ret
  active=coach.file;showFile();persist();view('code');ed.goto(coach.line);toast('Likely fix applied — review it, then Run again.');hideCoach()};
 
 /* ---------- Python runtime lifecycle ---------- */
-const rt={w:null,st:'loading',cur:0,seq:0,synced:new Map(),waiting:false,stopping:false,after:'ready',ver:'',t0:0,first:true};
+const rt={w:null,st:'loading',cur:0,seq:0,synced:new Map(),waiting:false,stopping:false,after:'ready',ver:'',t0:0,first:true,booting:false,tick:0,loadT0:0};
 const busy=()=>rt.st==='running'||rt.st==='input'||rt.st==='stopping';
-function status(st,label){rt.st=st;$('eng').dataset.s=st;$('engl').textContent=label;sync();window.dispatchEvent(new CustomEvent('atelier:runtime-status',{detail:{status:st,label}}))}
-function sync(){const b=busy(),s=rt.st,can=s==='ready'||s==='stopped'||s==='error';$('run').disabled=!can;$('run').textContent=s==='error'?'↻ Retry':'▶ Run';$('stop').hidden=!b;
- const mb=$('mrun');if(mb){mb.disabled=!(can||b);mb.textContent=b?'■ Stop':s==='error'?'↻ Retry':'▶ Run';mb.classList.toggle('danger',b)}
+function status(st,label){rt.st=st;$('eng').dataset.s=st;$('engl').textContent=label;if(st!=='loading'){$('bootRetry').hidden=true}sync();window.dispatchEvent(new CustomEvent('atelier:runtime-status',{detail:{status:st,label}}))}
+function sync(){const b=busy(),s=rt.st;$('run').disabled=false;$('run').textContent=s==='error'?'↻ Retry':'▶ Run';$('stop').hidden=!b;
+ const mb=$('mrun');if(mb){mb.disabled=false;mb.textContent=b?'■ Stop':s==='error'?'↻ Retry':'▶ Run';mb.classList.toggle('danger',b)}
  const inp=s==='input';$('cf').dataset.m=inp?'input':'cmd';$('pr').textContent=inp?'INPUT':'❯';$('cil').textContent=inp?'Answer for input()':'Console command';
  $('inputhint').classList.toggle('show',inp);$('inputhint').hidden=!inp;
  $('sendb').textContent=inp?'Send':'Enter';$('sendb').setAttribute('aria-label',inp?'Send program input':'Enter console command');
@@ -646,22 +652,27 @@ function forceKeyboard(){
  else ta.focus({preventScroll:true});
 }
 $('vcode').onclick=()=>{view('code');ed.focus()};$('kbdopen').onclick=forceKeyboard;
+function exitCoding(){if(cm){const inp=cm.getInputField&&cm.getInputField();if(inp)inp.blur()}else ta.blur();const a=document.activeElement;if(a&&a.blur)a.blur();mobileCoding(false)}
+$('codingDone').onclick=exitCoding;
 $('vcon').onclick=()=>{view('console');$('ci').focus()};
-function boot(label){
+function boot(label,force){
+ if(rt.booting&&!force)return;rt.booting=true;clearInterval(rt.tick);
  clearTimeout(rt.grace);clearTimeout(rt.bt);if(rt.w)rt.w.terminate();rt.waiting=false;rt.stopping=false;rt.synced=new Map();rt.cur=++rt.seq;
  status('loading',label||'Starting Python…');
  let w;try{const u=URL.createObjectURL(new Blob([$('wsrc').textContent],{type:'text/javascript'}));w=new Worker(u,{type:'module'});setTimeout(()=>URL.revokeObjectURL(u),10000)}catch(e){status('error','Python unavailable');write('Could not start the Python worker: '+e.message+'\n','err');return}
- rt.w=w;if(iso){rt.ctl=new Int32Array(new SharedArrayBuffer(8));rt.data=new Uint8Array(new SharedArrayBuffer(65536));rt.intr=new Int32Array(new SharedArrayBuffer(4))}
- const fail=m=>{if(rt.w!==w)return;clearTimeout(rt.bt);w.terminate();status('error','Python failed to load');write(m+'\nCheck your connection, then press Retry. The editor still works and your files are safe.\n','err')};
+ rt.w=w;clearInterval(rt.tick);$('bootRetry').hidden=true;rt.loadT0=Date.now();
+ rt.tick=setInterval(()=>{if(rt.w!==w||rt.st!=='loading')return;const s=Math.floor((Date.now()-rt.loadT0)/1000);$('engl').textContent='Starting Python… '+s+'s';if(s>=20)$('bootRetry').hidden=false},1000);
+ if(iso){rt.ctl=new Int32Array(new SharedArrayBuffer(8));rt.data=new Uint8Array(new SharedArrayBuffer(65536));rt.intr=new Int32Array(new SharedArrayBuffer(4))}
+ const fail=m=>{if(rt.w!==w)return;clearTimeout(rt.bt);clearInterval(rt.tick);rt.booting=false;w.terminate();status('error','Python failed to load');write(m+'\nCheck your connection, then press Retry. The editor still works and your files are safe.\n','err')};
  rt.bt=setTimeout(()=>fail('Python startup timed out.'),120000);setTimeout(()=>{if(rt.w===w&&rt.st==='loading')$('engl').textContent='Still loading (first load ~10 MB)…'},8000);
  w.onerror=e=>{e.preventDefault();fail(e.message||'Worker failed to start.')};
  w.onmessage=({data:m})=>{if(rt.w!==w)return;onMsg(m)};
  w.postMessage({type:'init',cdn:CDN,py:$('psrc').textContent,ctl:rt.ctl&&rt.ctl.buffer,data:rt.data&&rt.data.buffer,intr:rt.intr&&rt.intr.buffer})}
 function onMsg(m){
  if(window.AtelierCheckBridge&&window.AtelierCheckBridge.handle(m))return;
- if(m.type==='ready'){clearTimeout(rt.bt);rt.ver=m.v;const s=rt.after;rt.after='ready';status(s,s==='stopped'?'Stopped · Python '+m.v+' ready':'Ready · Python '+m.v);
+ if(m.type==='ready'){clearTimeout(rt.bt);clearInterval(rt.tick);rt.booting=false;rt.ver=m.v;const s=rt.after;rt.after='ready';status(s,s==='stopped'?'Stopped · Python '+m.v+' ready':'Ready · Python '+m.v);
   if(rt.first){rt.first=false;write('POMEGRANATE × LILY / PYTHON ATELIER\n','cmd');write(iso?'Ready. Press Run — input() prompts appear here and you answer in the box below.\n\n':'Ready in fallback input mode. Live terminal input is unavailable in this browser session — see ⚙ Help.\n\n','info')}return}
- if(m.type==='fatal'){clearTimeout(rt.bt);rt.w.terminate();status('error','Python failed to load');write(m.message+'\nCheck your connection, then press Retry. Your files are safe.\n','err');return}
+ if(m.type==='fatal'){clearTimeout(rt.bt);clearInterval(rt.tick);rt.booting=false;rt.w.terminate();status('error','Python failed to load');write(m.message+'\nCheck your connection, then press Retry. Your files are safe.\n','err');return}
  if(m.runId!==rt.cur)return;
  if(m.type==='out'){for(const s of m.seg){write(s.t,s.k);if(s.k==='err'&&errText.length<30000)errText+=s.t}}
  else if(m.type==='progress'){if(rt.st==='running')$('engl').textContent=m.label}
@@ -680,10 +691,10 @@ function go(m){if(!(rt.st==='ready'||rt.st==='stopped'))return false;persist();
  const prepared=iso?[]:$('prept').value.replace(/\r\n?/g,'\n').replace(/\n$/,'').split('\n').filter((_,i,a)=>a.length>1||a[0]!=='');
  rt.w.postMessage({...m,runId:rt.cur,files:upd,removed:rem,names:Object.keys(files),queue:prepared,
   imports:Object.entries(files).filter(([n])=>n.endsWith('.py')).map(e=>e[1]).join('\n')});return true}
-function run(name=active,args=[]){if(rt.st==='error'){boot();return}if(!(rt.st==='ready'||rt.st==='stopped')){toast(busy()?'Already running — press Stop first.':'Python is still loading.');return}
+function run(name=active,args=[]){if(busy()){toast('Already running — press Stop first.');return}if(rt.st==='error'){toast('Python failed to load — restarting it now.');boot();return}if(window.AtelierPrivacy&&!window.AtelierPrivacy.hasDecision()){toast('Choose your privacy settings first, then Python will start.');return}if(!(rt.st==='ready'||rt.st==='stopped')){toast('Python is still loading — wait for Ready.');return}
  if(!name.endsWith('.py')){toast('Select a .py file to run.');return}hideCoach();if(prefs.clr)clearCon();view('console');
  write('\n❯ python '+name+(args.length?' '+args.join(' '):'')+'\n','cmd');go({type:'run',file:name,args})}
-function hardStop(){clearTimeout(rt.grace);write('\n■ Stopped. Python was restarted: variables, runtime files and pip packages were reset. Editor files are untouched.\n','err');rt.after='stopped';boot('Restarting Python…')}
+function hardStop(){clearTimeout(rt.grace);write('\n■ Stopped. Python was restarted: variables, runtime files and pip packages were reset. Editor files are untouched.\n','err');rt.after='stopped';boot('Restarting Python…',true)}
 function stop(){if(!busy())return;if(rt.stopping||!iso){hardStop();return}
  rt.stopping=true;status('stopping','Stopping…');
  if(rt.waiting){rt.waiting=false;Atomics.store(rt.ctl,0,3);Atomics.notify(rt.ctl,0)}else Atomics.store(rt.intr,0,2);
@@ -703,7 +714,8 @@ $('ci').onkeydown=e=>{if(e.ctrlKey&&e.key.toLowerCase()==='c'&&!getSelection().t
  else if(rt.st!=='input'&&e.key==='ArrowUp'){e.preventDefault();if(hi===hist.length)draft=e.target.value;if(hi>0)e.target.value=hist[--hi]}
  else if(rt.st!=='input'&&e.key==='ArrowDown'){e.preventDefault();if(hi<hist.length){hi++;e.target.value=hi===hist.length?draft:hist[hi]}}};
 $('run').onclick=()=>run();$('stop').onclick=stop;$('mrun').onclick=()=>busy()?stop():run();
-$('restart').onclick=()=>{if(busy()&&!confirm('Stop the running program and restart Python?'))return;write('\n↻ Restarting Python — variables, runtime files and pip packages are reset. Editor files are untouched.\n','info');boot('Restarting Python…')};
+$('restart').onclick=()=>{if(busy()&&!confirm('Stop the running program and restart Python?'))return;write('\n↻ Restarting Python — variables, runtime files and pip packages are reset. Editor files are untouched.\n','info');boot('Restarting Python…',true)};
+$('bootRetry').onclick=()=>boot('Restarting Python…',true);
 /* ---------- seal, settings, shortcuts, mobile keyboard, lifecycle ---------- */
 function showSeal(){const b=$('sealb');b.replaceChildren();const i=document.createElement('img');i.src=seal||'../icon-192.png?v=atelier-serpent-lily-20261017';i.alt=seal?'Your saved Pomegranate × Lily seal':'Python Atelier snake, pen and lily icon';b.append(i)}
 $('sealb').onclick=$('su').onclick=()=>$('sealf').click();
