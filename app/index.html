@@ -224,6 +224,17 @@ body.coding .CodeMirror-scroll{scroll-padding-top:max(12px,env(safe-area-inset-t
 body.coding .ws[data-v=console] .ed{display:none!important}
 body.coding .ws[data-v=code] .con{display:none!important}
 </style>
+<style id="atelier-mobile-fixes-2">
+/* Mobile transition + toast + keyboard-open fixes (additive; desktop untouched). */
+@media(max-width:800px){
+ .ws[data-v="code"] .ed,.ws[data-v="console"] .con{animation:none}
+ .toast{bottom:calc(118px + env(safe-area-inset-bottom))}
+ body.kbd-open .toast{top:calc(8px + env(safe-area-inset-top));bottom:auto}
+ body.coding .toast{top:auto;bottom:calc(132px + env(safe-area-inset-bottom))}
+ body.kbd-open .top,body.kbd-open .productnav,body.kbd-open .bar,body.kbd-open .ed .tabs,body.kbd-open .ed .fm{display:none!important}
+}
+body.atelier-settling .app *{animation:none!important;transition:none!important}
+</style>
 <link rel="stylesheet" href="./learning.css">
 </head>
 <body>
@@ -560,16 +571,19 @@ let codingBaseH=0,sawKeyboard=false;
 function mobileCoding(on){
  if(on&&!matchMedia('(max-width:800px)').matches)return;
  const was=document.body.classList.contains('coding');
+ settleStart();
  document.body.classList.toggle('coding',!!on);
  if(on&&!was){codingBaseH=Math.round((window.visualViewport&&visualViewport.height)||innerHeight);sawKeyboard=false}
- requestAnimationFrame(()=>{if(cm)cm.refresh()})
+ let mcSettled=false; const mcEnd=()=>{if(mcSettled)return;mcSettled=true;settleEnd()};
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{if(cm)cm.refresh();mcEnd()}));
+ setTimeout(mcEnd,400)
 }
 $('es').addEventListener('pointerdown',()=>mobileCoding(true),true);
 $('es').addEventListener('touchstart',()=>mobileCoding(true),{capture:true,passive:true});
 ta.addEventListener('focus',()=>mobileCoding(true));
 ta.addEventListener('blur',()=>setTimeout(()=>{if(viewSwitching)return;const a=document.activeElement;if(a!==ta&&!(a&&a.closest&&a.closest('.CodeMirror')))mobileCoding(false)},120));
 document.addEventListener('focusin',e=>{const t=e.target;if(t===ta||(t&&t.closest&&t.closest('.CodeMirror')))mobileCoding(true)},true);
-document.addEventListener('focusout',()=>setTimeout(()=>{if(viewSwitching)return;const a=document.activeElement;if(a!==ta&&!(a&&a.closest&&a.closest('.CodeMirror')))mobileCoding(false)},120),true);
+document.addEventListener('focusout',()=>setTimeout(()=>{if(viewSwitching)return;const a=document.activeElement;if(a!==ta&&!(a&&a.closest&&a.closest('.CodeMirror')))mobileCoding(false)},120),true); document.addEventListener('focusin',e=>{const t=e.target;if(t===$('src')||t===$('ci')||(t&&t.closest&&t.closest('.CodeMirror')))document.body.classList.add('kbd-open')},true); document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!(a===$('src')||a===$('ci')||(a&&a.closest&&a.closest('.CodeMirror'))))document.body.classList.remove('kbd-open')},150),true);
 ta.addEventListener('input',()=>{changed();gutter();cursor()});ta.addEventListener('scroll',gutter);['click','keyup'].forEach(e=>ta.addEventListener(e,cursor));
 ta.addEventListener('keydown',e=>{if(e.isComposing)return;const a=ta.selectionStart,b=ta.selectionEnd;
  const ins=s=>{e.preventDefault();ta.setRangeText(s,a,b,'end');ta.dispatchEvent(new Event('input',{bubbles:true}))};
@@ -690,11 +704,11 @@ function sync(){const b=busy(),s=rt.st;$('run').disabled=false;$('run').textCont
  $('sendb').textContent=inp?'Send':'Enter';$('sendb').setAttribute('aria-label',inp?'Send program input':'Enter console command');
  $('ci').placeholder=inp?'Type your answer here…':b?'Running… (Ctrl+C to stop)':'Type help for commands';$('ci').disabled=b&&!inp}
 let viewSwitching=false;
-function switchView(v,focusFn){viewSwitching=true;const a=document.activeElement;if(a&&a.blur&&((v==='console'&&a!==$('ci'))||(v!=='console'&&a===$('ci')))){try{a.blur()}catch(e){}}view(v);if(focusFn)focusFn();setTimeout(()=>{viewSwitching=false},300)}
+let settlingN=0; function settleStart(){settlingN++;document.body.classList.add('atelier-settling')} function settleEnd(){if(--settlingN<=0){settlingN=0;document.body.classList.remove('atelier-settling')}} function switchView(v,focusFn){viewSwitching=true;settleStart();const a=document.activeElement;if(a&&a.blur&&((v==='console'&&a!==$('ci'))||(v!=='console'&&a===$('ci')))){try{a.blur()}catch(e){}}view(v);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(focusFn)focusFn();if(v==='code'&&cm)cm.refresh()}));setTimeout(()=>{viewSwitching=false;settleEnd()},300)}
 const view=v=>{$('ws').dataset.v=v;$('vcode').setAttribute('aria-pressed',String(v==='code'));$('vcon').setAttribute('aria-pressed',String(v==='console'))};
 function forceKeyboard(){switchView('code',()=>{if(cm){cm.focus();const inp=cm.getInputField&&cm.getInputField();if(inp)inp.focus({preventScroll:true});requestAnimationFrame(()=>cm.refresh())}else ta.focus({preventScroll:true})})}
 $('vcode').onclick=()=>switchView('code',()=>ed.focus());$('kbdopen').onclick=forceKeyboard;
-function exitCoding(){if(cm){const inp=cm.getInputField&&cm.getInputField();if(inp)inp.blur()}else ta.blur();const a=document.activeElement;if(a&&a.blur)a.blur();mobileCoding(false)}
+function exitCoding(){if(cm){const inp=cm.getInputField&&cm.getInputField();if(inp)inp.blur()}else ta.blur();const a=document.activeElement;if(a&&a.blur)a.blur();document.body.classList.remove('kbd-open');mobileCoding(false)}
 $('codingDone').onclick=exitCoding;
 $('vcon').onclick=()=>switchView('console',()=>$('ci').focus());
 function boot(label,force){
@@ -771,7 +785,7 @@ $('fd').onclick=()=>{prefs.fs=Math.max(12,prefs.fs-1);applyPrefs();savePrefs()};
 document.addEventListener('keydown',e=>{if(!(e.metaKey||e.ctrlKey))return;if(e.key==='Enter'){e.preventDefault();if(!$('sd').open)run()}else if(e.key.toLowerCase()==='s'){e.preventDefault();persist();toast(saveOK?'Saved on this device. Export for a backup.':'Browser storage is unavailable — use Export.')}},true);
 const vv=window.visualViewport;if(vv){let lastH=0;const f=()=>{const h=Math.round(vv.height);document.documentElement.style.setProperty('--vh',h+'px');
  if(document.body.classList.contains('coding')&&codingBaseH){if(h<codingBaseH-90)sawKeyboard=true;else if(!viewSwitching&&sawKeyboard&&h>codingBaseH-45)mobileCoding(false)}
- if(cm&&Math.abs(h-lastH)>24)requestAnimationFrame(()=>cm.refresh());lastH=h};vv.addEventListener('resize',f);vv.addEventListener('scroll',f);f()}
+ if(cm&&Math.abs(h-lastH)>24){clearTimeout(vv._rt);vv._rt=setTimeout(()=>cm.refresh(),120)} if(h>window.innerHeight-45){const a=document.activeElement;if(!(a===$('src')||a===$('ci')||(a&&a.closest&&a.closest('.CodeMirror'))))document.body.classList.remove('kbd-open')}lastH=h};vv.addEventListener('resize',f);vv.addEventListener('scroll',f);f()}
 window.addEventListener('pagehide',persist);document.addEventListener('visibilitychange',()=>{if(document.hidden)persist()});
 window.addEventListener('beforeunload',e=>{if(!saveOK){e.preventDefault();e.returnValue=''}});
 window.addEventListener('storage',e=>{if(e.key===KEY)toast('Another tab changed your workspace. Reload before editing here to avoid overwriting it.')});
