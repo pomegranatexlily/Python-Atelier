@@ -294,24 +294,28 @@
       checkBox += '</div>';
     }
 
+    const taskText = (challenge.translationLayer && challenge.translationLayer.plainEnglish) || challenge.instructions;
     return '<section class="practice-detail">' +
       '<div class="challenge-top"><div><button type="button" class="tiny quiet" id="practiceBack">← All challenges</button><div class="learning-kicker" style="margin-top:10px">CS50P Foundations</div><h2>' + escapeHTML(challenge.title) + '</h2></div>' + statusPill(rec.status) + '</div>' +
-      '<div class="practice-section"><h3>Challenge</h3><p>' + escapeHTML(challenge.instructions) + '</p></div>' +
-      renderTranslationLayer(challenge) +
-      renderChallengeResources(challenge) +
-      '<div class="practice-section"><h3>What You Are Practicing</h3><p>' + escapeHTML(challenge.practice) + '</p><div class="challenge-concepts" style="margin-top:8px">' + challenge.concepts.map(x => '<span>' + escapeHTML(x) + '</span>').join('') + '</div></div>' +
-      '<div class="practice-section"><h3>Example</h3><div class="practice-example"><pre>Input\\n' + escapeHTML(challenge.exampleInput.join('\\n')) + '</pre><pre>Expected behavior\\n' + escapeHTML(challenge.expectedBehavior) + '</pre></div></div>' +
+      '<div class="practice-section"><h3>Your task</h3><p>' + escapeHTML(taskText) + '</p></div>' +
+      '<div class="practice-section"><h3>Example</h3><div class="practice-example"><pre>Input\n' + escapeHTML(challenge.exampleInput.join('\n')) + '</pre><pre>Expected behavior\n' + escapeHTML(challenge.expectedBehavior) + '</pre></div></div>' +
       '<div class="practice-section"><div class="learning-actions">' +
         '<button type="button" class="primary" id="openChallengeWork">' + (rec.fileName ? 'Reopen Workbench' : 'Start Challenge') + '</button>' +
         '<button type="button" id="runChallenge" ' + (!rec.fileName ? 'disabled' : '') + '>▶ Run</button>' +
         '<button type="button" id="checkChallenge" ' + (checkDisabled || !rec.fileName ? 'disabled' : '') + '>' + (checking ? 'Checking…' : 'Check My Work') + '</button>' +
         '<button type="button" class="quiet" id="hintChallenge">Hint</button></div>' +
         '<div id="hintArea"></div>' + checkBox + '</div>' +
+      '<details class="practice-section explain-more"><summary>Explain more</summary>' +
+      '<div class="practice-section"><h3>Challenge</h3><p>' + escapeHTML(challenge.instructions) + '</p></div>' +
+      renderTranslationLayer(challenge) +
+      renderChallengeResources(challenge) +
+      '<div class="practice-section"><h3>What You Are Practicing</h3><p>' + escapeHTML(challenge.practice) + '</p><div class="challenge-concepts" style="margin-top:8px">' + challenge.concepts.map(x => '<span>' + escapeHTML(x) + '</span>').join('') + '</div></div>' +
       '<div class="practice-section"><h3>Learner-submitted reflection</h3><p>What did you change, and why did it work?</p>' +
         '<textarea class="reflection" id="reflectionField" placeholder="Write at least 30 non-whitespace characters. Length is only a completion requirement; it does not verify understanding.">' + escapeHTML(rec.reflection || '') + '</textarea>' +
         '<div class="reflection-count ' + (reflectionLength >= 30 ? 'good' : '') + '" id="reflectionCount">' + reflectionLength + ' / 30 non-whitespace characters</div>' +
         '<div class="learning-actions" style="margin-top:8px"><button type="button" id="saveReflection">Save Reflection' + (rec.status === 'completed' ? '' : ' / Complete') + '</button></div>' +
         '<div class="learning-note" style="margin-top:10px">Completion requires a passing self-check for the submitted source and a learner-submitted reflection of at least 30 non-whitespace characters. This local record is self-reported learning history, not a credential.</div></div>' +
+      '</details>' +
       '</section>';
   }
 
