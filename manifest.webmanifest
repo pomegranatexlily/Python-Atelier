@@ -10,13 +10,19 @@
   "theme_color": "#160d12",
   "icons": [
     {
-      "src": "./icon-192.png?v=atelier-serpent-lily-20261017",
+      "src": "./pa-the-nib.svg?v=atelier-nib-20261031",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png?v=atelier-nib-20261031",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-512.png?v=atelier-serpent-lily-20261017",
+      "src": "./icon-512.png?v=atelier-nib-20261031",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

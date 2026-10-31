@@ -11,8 +11,9 @@
 <meta name="apple-mobile-web-app-title" content="Python Atelier">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="../manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png?v=atelier-serpent-lily-20261017">
-<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png?v=atelier-serpent-lily-20261017">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png?v=atelier-nib-20261031">
+<link rel="icon" type="image/svg+xml" href="../pa-the-nib.svg?v=atelier-nib-20261031">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png?v=atelier-nib-20261031">
 <title>POMEGRANATE × LILY — Python Atelier</title>
 <meta name="description" content="POMEGRANATE × LILY Python Atelier — a focused browser-based Python workspace for writing, running, debugging and learning Python.">
 <meta name="robots" content="noindex,follow">
@@ -773,7 +774,7 @@ $('run').onclick=()=>run();$('stop').onclick=stop;$('mrun').onclick=()=>busy()?s
 $('restart').onclick=()=>{if(busy()&&!confirm('Stop the running program and restart Python?'))return;write('\n↻ Restarting Python — variables, runtime files and pip packages are reset. Editor files are untouched.\n','info');boot('Restarting Python…',true)};
 $('bootRetry').onclick=()=>boot('Restarting Python…',true);
 /* ---------- seal, settings, shortcuts, mobile keyboard, lifecycle ---------- */
-function showSeal(){const b=$('sealb');b.replaceChildren();const i=document.createElement('img');i.src=seal||'../icon-192.png?v=atelier-serpent-lily-20261017';i.alt=seal?'Your saved Pomegranate × Lily seal':'Python Atelier snake, pen and lily icon';b.append(i)}
+function showSeal(){const b=$('sealb');b.replaceChildren();const i=document.createElement('img');i.src=seal||'../pa-the-nib.svg?v=atelier-nib-20261031';i.alt=seal?'Your saved Pomegranate × Lily seal':'Python Atelier snake, pen and lily icon';b.append(i)}
 $('sealb').onclick=$('su').onclick=()=>$('sealf').click();
 $('sr').onclick=()=>{seal='';try{localStorage.removeItem(SK)}catch{}showSeal()};
 $('sealf').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f||!/^image\/(png|jpeg|webp|gif)$/.test(f.type))return toast('Choose a PNG, JPEG, WebP or GIF image.');
